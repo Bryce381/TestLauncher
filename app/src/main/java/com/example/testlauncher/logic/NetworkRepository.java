@@ -4,6 +4,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
+import android.widget.Toast;
 
 import com.example.testlauncher.logic.model.NetworkStatusModel;
 import com.example.testlauncher.tool.LogUtil;
@@ -25,24 +28,33 @@ public class NetworkRepository {
     public void checkNetworkStatus(Context context) {
         LogUtil.d(TAG, "NetworkStatusModel");
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager != null) {
-            LogUtil.d(TAG, "NetworkStatusModel---"+"connectivityManager not null");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Network activeNetwork = connectivityManager.getActiveNetwork();
             if (activeNetwork != null) {
                 NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
-                if (networkCapabilities != null) {
-                    NetworkStatusModel.setConnected(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
-                    if(NetworkStatusModel.isConnected()){
-                        LogUtil.d(TAG, "Network connected true---"+"network connected type:"+getNetworkType(context));
-                    }
-                    NetworkStatusModel.setConnectionType(getNetworkType(context));
+                // 检查网络是否可用
+                boolean isConnected = networkCapabilities != null
+                        && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                        && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+                if (isConnected) {
+                    // 网络连接可用，可以进行网络操作
+                    Toast.makeText(context, "Network available,"+getNetworkType(context), Toast.LENGTH_SHORT).show();
                 } else {
-                    NetworkStatusModel.setConnected(false);
-                    NetworkStatusModel.setConnectionType("No connection");
+                    // 网络连接不可用或无网络
+                    Toast.makeText(context, "Network unavailable", Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                // 无网络连接
+            }
+        } else {
+            // 对于Android API 28及以下版本，使用旧的方法
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                // 网络连接可用
+            } else {
+                // 网络连接不可用或无网络
             }
         }
-        LogUtil.d(TAG, "NetworkStatusModel---"+"NetworkStatusModel end");
     }
 
     private String getNetworkType(Context context) {
@@ -52,12 +64,22 @@ public class NetworkRepository {
             if (activeNetwork != null) {
                 NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
                 if (networkCapabilities != null) {
-                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                        return "WiFi";
-                    } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
                         return "Mobile data";
+                    } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        return "WiFi";
+                    } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH)) {
+                        return "BLUETOOTH";
                     } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                        return "Ethernet";
+                        return "ETHERNET";
+                    } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                        return "VPN";
+                    } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE)) {
+                        return "WIFI_AWARE";
+                    } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_LOWPAN)) {
+                        return "LowPAN";
+                    } else if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_USB)) {
+                        return "USB";
                     }
                 }
             }

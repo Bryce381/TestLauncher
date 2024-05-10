@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.example.testlauncher.logic.NetworkchangeReceiver;
+import com.example.testlauncher.network.NetworkchangeReceiver;
 import com.example.testlauncher.service.NetworkMonitorService;
 
 public class TestLauncherApplication extends Application {
