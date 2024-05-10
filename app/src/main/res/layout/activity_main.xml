@@ -12,5 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="查看网络状态"/>
+    <TextView
+        android:id="@+id/tv_speed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
 </LinearLayout>

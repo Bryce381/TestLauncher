@@ -5,11 +5,17 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.TrafficStats;
 import android.os.Build;
 import android.widget.Toast;
 
 import com.example.testlauncher.logic.model.NetworkStatusModel;
 import com.example.testlauncher.tool.LogUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 public class NetworkRepository {
     private static final String TAG = "DEBUG";
@@ -86,5 +92,6 @@ public class NetworkRepository {
         }
         return "Unknown";
     }
+
 
 }
